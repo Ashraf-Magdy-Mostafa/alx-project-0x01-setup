@@ -1,5 +1,5 @@
 import { UserProps } from "@/interfaces";
-const UserCard: React.FC<{ user: UserProps }> = ({ user }) => {
+const UserCard: React.FC<UserProps> = ({ user }) => {
     return (
         <div className="border rounded-xl p-6 shadow-md hover:shadow-lg transition-all bg-white max-w-md mx-auto mb-4">
             <h2 className="text-xl font-bold text-blue-600">{user.name}</h2>

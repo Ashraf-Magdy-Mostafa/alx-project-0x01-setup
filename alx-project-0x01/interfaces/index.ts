@@ -24,7 +24,7 @@ interface Company {
     bs: string;
 }
 
-export interface UserProps {
+interface UserData {
     id: number;
     name: string;
     username: string;
@@ -33,4 +33,7 @@ export interface UserProps {
     phone: string;
     website: string;
     company: Company;
+}
+export interface UserProps {
+    user: UserData
 }
