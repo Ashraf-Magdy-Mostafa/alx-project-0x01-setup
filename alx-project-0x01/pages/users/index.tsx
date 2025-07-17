@@ -1,10 +1,10 @@
 import Header from "@/components/layout/Header";
 import React from 'react'
-import { UserProps } from "@/interfaces";
+import { UserData } from "@/interfaces";
 import UserCard from "@/components/common/UserCard";
 
 interface UserPropsList {
-    posts: UserProps[] // [{},{},{}]
+    posts: UserData[] // [{},{},{}]
 
 }
 
@@ -30,7 +30,7 @@ export async function getStaticProps() {
 
     return {
         props: {
-            posts,
+            posts, // [{},{}]
         },
     };
 }

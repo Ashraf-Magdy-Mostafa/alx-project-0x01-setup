@@ -1,10 +1,7 @@
-export interface PostProps {
-    userId: number;
-    id: number;
-    title: string;
-    body: string;
-}
 
+/*
+// // USER INTERFACE // // 
+*/
 interface Geo {
     lat: string;
     lng: string;
@@ -24,7 +21,7 @@ interface Company {
     bs: string;
 }
 
-interface UserData {
+export interface UserData {
     id: number;
     name: string;
     username: string;
@@ -34,9 +31,17 @@ interface UserData {
     website: string;
     company: Company;
 }
-export interface UserProps {
-    user: UserData
-}
+/*
+// // END USER INTERFACE // // 
+*/
+
+
+// export interface UserProps {
+//     user: UserData
+// }
+
+
+/* // // Post Interface // // */
 export interface PostProps {
     userId: number;
     id: number;
