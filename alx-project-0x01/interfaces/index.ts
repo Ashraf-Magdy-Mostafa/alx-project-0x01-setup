@@ -1,16 +1,12 @@
-export interface PostProps {
-    userId: number;
-    id: number;
-    title: string;
-    body: string;
-}
+// interfaces/index.ts
 
-interface Geo {
+// Common types
+export interface Geo {
     lat: string;
     lng: string;
 }
 
-interface Address {
+export interface Address {
     street: string;
     suite: string;
     city: string;
@@ -18,32 +14,20 @@ interface Address {
     geo: Geo;
 }
 
-interface Company {
+export interface Company {
     name: string;
     catchPhrase: string;
     bs: string;
 }
 
-interface UserData {
-    id: number;
-    name: string;
-    username: string;
-    email: string;
-    address: Address;
-    phone: string;
-    website: string;
-    company: Company;
-}
-export interface UserProps {
-    user: UserData
-}
+// Post interfaces
 export interface PostProps {
     userId: number;
     id: number;
     title: string;
     body: string;
 }
-//  title, body, userId, id
+
 export interface PostData {
     userId: number;
     id?: number;
@@ -54,4 +38,26 @@ export interface PostData {
 export interface PostModalProps {
     onClose: () => void;
     onSubmit: (post: PostData) => void;
+}
+
+// User interfaces
+export interface UserData {
+    id?: number; // Optional for new users
+    name: string;
+    username: string;
+    email: string;
+    address: Address;
+    phone: string;
+    website: string;
+    company: Company;
+}
+
+export interface UserProps {
+    user: UserData;
+}
+
+export interface UserModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (user: UserData) => void;
 }
