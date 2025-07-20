@@ -1,23 +1,33 @@
-// pages/users.tsx
+// pages/users/index.tsx
 
-import React, { useState } from 'react';
-import Header from '@/components/layout/Header';
-import UserCard from '@/components/common/UserCard';
-import UserModal from '@/components/common/UserModal';
-import { UserData } from '@/interfaces';
+import React, { useState } from "react";
+import Header from "@/components/layout/Header";
+import UserCard from "@/components/common/UserCard";
+import UserModal from "@/components/common/UserModal";
+
+import { UserData, UserProps } from "@/interfaces";
 
 const Users: React.FC<{ posts: UserData[] }> = ({ posts }) => {
     const [isModalOpen, setModalOpen] = useState(false);
-    const [users, setUsers] = useState<UserData[]>(posts);
 
-    const handleAddUser = (newUser: UserData) => {
-        const withId = { ...newUser, id: users.length + 1 };
-        setUsers([withId, ...users]);
+    // internally manage a list of UserProps instead of raw UserData
+    const [users, setUsers] = useState<UserProps[]>(
+        posts.map((user) => ({ user }))
+    );
+
+    const handleAddUser = (newUser: UserProps) => {
+        // Assign a new ID if it's missing
+        const withId = {
+            ...newUser.user,
+            id: newUser.user.id ?? users.length + 1,
+        };
+        setUsers([{ user: withId }, ...users]);
     };
 
     return (
         <div className="flex flex-col h-screen">
             <Header />
+
             <main className="p-4">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-2xl font-semibold">User List</h1>
@@ -30,8 +40,8 @@ const Users: React.FC<{ posts: UserData[] }> = ({ posts }) => {
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                    {users.map(user => (
-                        <UserCard key={user.id} user={user} />
+                    {users.map((userData) => (
+                        <UserCard key={userData.user.id} user={userData.user} />
                     ))}
                 </div>
 
@@ -39,7 +49,7 @@ const Users: React.FC<{ posts: UserData[] }> = ({ posts }) => {
                     <UserModal
                         isOpen={isModalOpen}
                         onClose={() => setModalOpen(false)}
-                        onSubmit={handleAddUser}
+                        onSubmit={handleAddUser} // ✅ accepts (post: UserProps)
                     />
                 )}
             </main>
@@ -47,9 +57,10 @@ const Users: React.FC<{ posts: UserData[] }> = ({ posts }) => {
     );
 };
 
+// Fetch users from JSONPlaceholder API
 export async function getStaticProps() {
-    const response = await fetch('https://jsonplaceholder.typicode.com/users');
-    const posts = await response.json();
+    const response = await fetch("https://jsonplaceholder.typicode.com/users");
+    const posts: UserData[] = await response.json();
 
     return {
         props: {
