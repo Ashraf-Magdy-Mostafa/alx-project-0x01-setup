@@ -1,88 +1,129 @@
 // components/common/UserModal.tsx
 
-import React, { useState } from 'react';
-import { UserModalProps, UserData } from '@/interfaces';
+import React, { useState } from "react";
+import { UserData, UserModalProps, UserProps } from "@/interfaces";
 
-const defaultData: Omit<UserData, 'id'> = {
-    name: '',
-    username: '',
-    email: '',
+// Initial form state without the optional `id`
+const initialState: UserData = {
+    name: "",
+    username: "",
+    email: "",
     address: {
-        street: '',
-        suite: '',
-        city: '',
-        zipcode: '',
+        street: "",
+        suite: "",
+        city: "",
+        zipcode: "",
         geo: {
-            lat: '',
-            lng: '',
+            lat: "",
+            lng: "",
         },
     },
-    phone: '',
-    website: '',
+    phone: "",
+    website: "",
     company: {
-        name: '',
-        catchPhrase: '',
-        bs: '',
+        name: "",
+        catchPhrase: "",
+        bs: "",
     },
 };
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
-    const [formData, setFormData] = useState<Omit<UserData, 'id'>>(defaultData);
+    const [user, setUser] = useState<UserData>(initialState);
 
     if (!isOpen) return null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
-        const keys = name.split('.');
-        if (keys.length > 1) {
-            setFormData((prevData: any) => {
-                const updatedData = { ...prevData };
-                let current = updatedData;
-
-                for (let i = 0; i < keys.length - 1; i++) {
-                    current = current[keys[i]];
-                }
-
-                current[keys[keys.length - 1]] = value;
-                return updatedData;
-            });
+        // Handle nested fields
+        if (name.startsWith("address.")) {
+            const addrKey = name.replace("address.", "");
+            if (addrKey.startsWith("geo.")) {
+                const geoKey = addrKey.replace("geo.", "");
+                setUser((prev) => ({
+                    ...prev,
+                    address: {
+                        ...prev.address,
+                        geo: {
+                            ...prev.address.geo,
+                            [geoKey]: value,
+                        },
+                    },
+                }));
+            } else {
+                setUser((prev) => ({
+                    ...prev,
+                    address: {
+                        ...prev.address,
+                        [addrKey]: value,
+                    },
+                }));
+            }
+        } else if (name.startsWith("company.")) {
+            const companyKey = name.replace("company.", "");
+            setUser((prev) => ({
+                ...prev,
+                company: {
+                    ...prev.company,
+                    [companyKey]: value,
+                },
+            }));
         } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+            setUser((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
         }
     };
 
-    const handleSubmit = () => {
-        const newUser: UserData = {
-            ...formData,
-            id: Math.floor(Math.random() * 10000), // Generate ID for mock just in this example
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const newUser: UserProps = {
+            user: {
+                ...user,
+                id: Math.floor(Math.random() * 10000), // Generate a mock ID
+            },
         };
-        onSubmit(newUser);
-        setFormData(defaultData);
+
+        onSubmit(newUser); // ✅ Pass the object as `UserProps`
         onClose();
+        setUser(initialState); // Reset form
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg w-full max-w-xl">
-                <h2 className="text-xl font-bold mb-4">Add New User</h2>
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-xl">
+                <h2 className="text-2xl font-bold mb-4 text-gray-800">Add New User</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-2 gap-4">
+                        <input name="name" placeholder="Name" value={user.name} onChange={handleChange} className="border px-3 py-2 rounded" required />
+                        <input name="username" placeholder="Username" value={user.username} onChange={handleChange} className="border px-3 py-2 rounded" required />
+                        <input name="email" placeholder="Email" value={user.email} onChange={handleChange} className="border px-3 py-2 rounded" required />
+                        <input name="phone" placeholder="Phone" value={user.phone} onChange={handleChange} className="border px-3 py-2 rounded" />
+                        <input name="website" placeholder="Website" value={user.website} onChange={handleChange} className="border px-3 py-2 rounded" />
 
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                    <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} className="border p-2" />
-                    <input name="username" placeholder="Username" value={formData.username} onChange={handleChange} className="border p-2" />
-                    <input name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="border p-2" />
-                    <input name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} className="border p-2" />
-                    <input name="website" placeholder="Website" value={formData.website} onChange={handleChange} className="border p-2" />
-                    <input name="address.city" placeholder="City" value={formData.address.city} onChange={handleChange} className="border p-2" />
-                    <input name="address.street" placeholder="Street" value={formData.address.street} onChange={handleChange} className="border p-2" />
-                    <input name="address.zipcode" placeholder="Zipcode" value={formData.address.zipcode} onChange={handleChange} className="border p-2" />
-                    <input name="company.name" placeholder="Company Name" value={formData.company.name} onChange={handleChange} className="border p-2" />
-                </div>
+                        <input name="company.name" placeholder="Company Name" value={user.company.name} onChange={handleChange} className="border px-3 py-2 rounded" />
+                        <input name="company.catchPhrase" placeholder="CatchPhrase" value={user.company.catchPhrase} onChange={handleChange} className="border px-3 py-2 rounded" />
+                        <input name="company.bs" placeholder="BS" value={user.company.bs} onChange={handleChange} className="border px-3 py-2 rounded" />
 
-                <div className="flex justify-end space-x-2">
-                    <button onClick={handleSubmit} className="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
-                    <button onClick={onClose} className="bg-gray-400 px-4 py-2 rounded">Cancel</button>
-                </div>
+                        <input name="address.street" placeholder="Street" value={user.address.street} onChange={handleChange} className="border px-3 py-2 rounded" />
+                        <input name="address.suite" placeholder="Suite" value={user.address.suite} onChange={handleChange} className="border px-3 py-2 rounded" />
+                        <input name="address.city" placeholder="City" value={user.address.city} onChange={handleChange} className="border px-3 py-2 rounded" />
+                        <input name="address.zipcode" placeholder="Zipcode" value={user.address.zipcode} onChange={handleChange} className="border px-3 py-2 rounded" />
+                        <input name="address.geo.lat" placeholder="Latitude" value={user.address.geo.lat} onChange={handleChange} className="border px-3 py-2 rounded" />
+                        <input name="address.geo.lng" placeholder="Longitude" value={user.address.geo.lng} onChange={handleChange} className="border px-3 py-2 rounded" />
+                    </div>
+
+                    <div className="flex justify-end mt-6 gap-4">
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-gray-600 hover:text-gray-900">
+                            Cancel
+                        </button>
+                        <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Add User
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );
